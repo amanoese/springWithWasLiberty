@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  was-liberty:
+    image: websphere-liberty:webProfile7
+    ports:
+      - "80:9080"
+      - "443:9443"
+    volumes:
+      - /config/dropins/
+
+  maven:
+    image: maven
+    volumes_from:
+      - was-liberty
+    volumes:
+      - ./:/var/app
+      - ./.m2:/root/.m2
+    working_dir: /var/app
+    command: sh -c "mvn clean install package -Dmaven.test.skip=true && cp /var/app/target/*.war /config/dropins/app.war"
+
